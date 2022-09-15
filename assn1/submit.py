@@ -145,9 +145,9 @@ def solver( X, y, timeout, spacing ):
 ################################
 	W = np.random.randn((int)(d*(d-1)*(d+1)/6 + d*(d+1) +d) + 1,1)
 	B = 0.0
-	C = 6.5
-	batch_size = 105
-	step_length_OG = 0.1
+	C = 2
+	batch_size = 128
+	step_length_OG = 0.01
 
 	# You may reinitialize W, B to your liking here e.g. set W to its correct dimensionality
 	# You may also define new variables here e.g. step_length, mini-batch size etc

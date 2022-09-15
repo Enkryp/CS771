@@ -35,7 +35,7 @@ timeouts = np.array( [ 0.2, 0.5, 1, 2, 5 ] )
 spacing = 10
 
 result = np.zeros( ( len( timeouts ), 4 ) )
-
+w_list = []
 for i in range( len( timeouts ) ):
 	to = timeouts[i]
 	print( "\ttimeout =", to )
@@ -47,6 +47,7 @@ for i in range( len( timeouts ) ):
 		print( "\t\tTrial %d of %d" % ( t + 1, num_trials ) )
 		tic = tm.perf_counter()
 		( w, b, totTime ) = solver( Z_trn[:,:-1], Z_trn[:,-1], to, spacing )
+		w_list.append(w)
 		toc = tm.perf_counter()
 		#print("W : "+str(w[:5]))
 		#print("B : "+str(b))
