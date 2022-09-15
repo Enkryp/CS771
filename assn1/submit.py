@@ -30,6 +30,47 @@ def compute_grads(w,b,n,x,y,C):
 	delw = w + C * n * (x.T * g) * y
 	return delw, delb 
 
+def rand_perm(n):
+    '''
+    n       :=      Number of data points
+    '''
+    perm = np.arange(n)
+    np.random.shuffle(perm)
+    assert(perm.size == n)
+    return perm
+
+def create_batches(perm, b):
+    '''
+    perm    :=      A given permutation of size n, n is the number of data points
+    b       :=      The size of batches to be made
+    '''
+    assert(perm.size % b == 0)
+    batches = [perm[i:i+b] for i in range(0, perm.size, b)]
+    return batches
+
+def get_batch_grads(w, b, n, batch, X, Y, C):
+    '''
+    Similar to compute_grads above
+    w       :=      Weight vector
+    b       :=      Bias scalar
+    n       :=      Number of data points
+    X       :=      The input feature vectors
+    Y       :=      Output corresponding to input features
+    '''
+
+    delw, delb = w, 0
+    for i in batch:
+        x, y = X[i], Y[i]
+        discriminant = (np.dot( x,w ) + b) * y
+        discriminant = discriminant[0][0]
+        g = 0
+        if discriminant < 1:
+            g = -1
+        delb += C * n * g * y
+        delw += w + C * n * (x.T * g) * y
+    return delw, delb 
+
+
 # def doCoordOptCSVMDual( alpha, i,w,b,normSq,C,x,y ):
 
 # 	# print(x.shape)
