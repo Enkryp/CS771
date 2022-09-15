@@ -1,3 +1,4 @@
+from asyncio import base_tasks
 from functools import WRAPPER_UPDATES
 import numpy as np
 # This is the only scipy method you are allowed to use
@@ -20,36 +21,29 @@ import math
 
 # You may define any new functions, variables, classes here
 # For example, functions to calculate next coordinate or step length
-def compute_grads(w,b,n,x,y,C):
-	discriminant = (np.dot( x,w ) + b) * y
-	discriminant = discriminant[0][0]
-	g = 0
-	if discriminant < 1:
-		g = -1
-	delb = C * n * g * y
-	delw = w + C * n * (x.T * g) * y
+def compute_grads(w,b,n,x,y,C,batch_size):
+    # Shapes
+	# x : (batch_size,d)
+	# b : scalar
+	# y : (batch_size, )
+	# w : (d,1)
+	y = np.reshape(y,(batch_size,1))
+	# y : (batch_size,1)
+	hinge_disc = (np.dot( x,w ) + b) * y
+	# hinge_disc : (batch_size,1)
+	sub_grads = np.zeros((batch_size,1))
+	# sub_grads : (batch_size, 1)
+	sub_grads[hinge_disc < 1] = -1
+	# No grads if hinge_disc is greater than or equal to one, otherwise a multiplier of -1
+
+	delb = C*1.0*n/batch_size *np.dot(sub_grads.T,y) 
+
+	delw =w + C *1.0* n/batch_size * np.dot((x.T * sub_grads.T), y )
+	
 	return delw, delb 
 
-# def doCoordOptCSVMDual( alpha, i,w,b,normSq,C,x,y ):
-
-# 	# print(x.shape)
-# 	# print(w.shape)
-#     # Find the unconstrained new optimal value of alpha_i
-#     # It takes only O(d) time to do so because of our clever book keeping
-# 	newAlphai = ((1 - y * (x.dot(w) + b)) / normSq)[0][0]
-	
-#     # Make sure that the constraints are satisfied. This takes only O(1) time
-# 	if newAlphai > C:
-# 		newAlphai = C
-# 	if newAlphai < 0:
-# 	    newAlphai = 0
-
-#     # Update the primal model vector and bias values to ensure bookkeeping is proper
-#     # Doing these bookkeeping updates also takes only O(d) time
-# 	w_updated = w + (newAlphai - alpha[i]) * y * (x.T)
-# 	b_updated = b + (newAlphai - alpha[i]) * y
-# 	return newAlphai,w_updated,b_updated
 featuresPrecomputed={}
+
 def features_for_one(X):
 	if (tuple(X) in featuresPrecomputed.keys()): return featuresPrecomputed[tuple(X)]
 
@@ -61,7 +55,7 @@ def features_for_one(X):
 		else:
 			X[features_length-i-1] = X[features_length-i-1]*X[features_length-i]
 	features = []
-	
+
 	for i in range(features_length + 1):
 		for j in range(i,features_length + 1):
 			for k in range(j,features_length + 1):
@@ -94,9 +88,9 @@ def get_renamed_labels( y ):
 	# For example, you may map 1 -> 1 and 0 -> -1 or else you may want to go with 1 -> -1 and 0 -> 1
 	# Use whatever convention you seem fit but use the same mapping throughout your code
 	# If you use one mapping for train and another for test, you will get poor accuracy
-	y[y==1]=-1
-	y[y==0]= 1
-	y_new = y
+	y_new = np.copy( y )
+	y_new[y_new==1]=-1
+	y_new[y_new==0]= 1
 	return y_new.reshape( ( y_new.size, ) )					# Reshape y_new as a vector
 
 
@@ -149,18 +143,12 @@ def solver( X, y, timeout, spacing ):
 ################################
 #  Non Editable Region Ending  #
 ################################
-	W = np.zeros(((int)(d*(d-1)*(d+1)/6 + d*(d+1) +d) + 1,1))
-	alpha = [0 for _ in range(n)]
+	W = np.random.randn((int)(d*(d-1)*(d+1)/6 + d*(d+1) +d) + 1,1)
 	B = 0.0
-	W_run,B_run =0,0
-	C = 0.5
-	# X = get_features(X)
-	# y = get_renamed_labels(y)
-	step_length_OG = 0.01
-	rolling_avg_param = 0.05
-	# normSq = [np.linalg.norm(X[i]) for i in range(n)]
-	# X = get_features(X)
-	# y = get_renamed_labels(y)
+	C = 6.5
+	batch_size = 105
+	step_length_OG = 0.1
+
 	# You may reinitialize W, B to your liking here e.g. set W to its correct dimensionality
 	# You may also define new variables here e.g. step_length, mini-batch size etc
 
@@ -173,7 +161,6 @@ def solver( X, y, timeout, spacing ):
 			toc = tm.perf_counter()
 			totTime = totTime + (toc - tic)
 			if totTime > timeout:
-				print(t)
 				return ( W.reshape( ( W.size, ) ), B, totTime )			# Reshape W as a vector
 			else:
 				tic = tm.perf_counter()
@@ -201,12 +188,12 @@ def solver( X, y, timeout, spacing ):
 		# In this scheme, W, B play the role of the "cumulative" variables in the course module optLib (see the cs771 library)
 		# W_run, B_run on the other hand, play the role of the "theta" variable in the course module optLib (see the cs771 library)
 	
-		i = random.randrange(n)
+		i = random.randrange(n-batch_size-1)
 		step_length = step_length_OG/math.sqrt(t)
-		x = get_features(X[i:i+1,:])
-		out = get_renamed_labels(y[i:i+1])
-		out = y[i]
-		delw,delb = compute_grads(W,B,n,x,out,C)
+		x = get_features(X[i:i+batch_size,:])
+		out = get_renamed_labels(y[i:i+batch_size])
+		delw,delb = compute_grads(W,B,n,x,out,C,batch_size)
+	
 		W = W -step_length*delw
 		B = B - step_length*delb
 		
