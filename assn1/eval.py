@@ -21,9 +21,7 @@ def get_misclassification_rate( X, y, w, b ):
 	return 1 - np.average( get_renamed_labels( y ) == predictions )
 
 Z_trn = np.loadtxt( "train.dat" )
-Z_tst = np.loadtxt("test.dat")
-# Z_tst = Z_trn[8000:]
-# Z_trn = Z_trn[:8000]
+Z_tst = np.loadtxt( "test.dat" )
 
 # To avoid unlucky outcomes try running the code several times
 num_trials = 5
@@ -35,7 +33,7 @@ timeouts = np.array( [ 0.2, 0.5, 1, 2, 5 ] )
 spacing = 10
 
 result = np.zeros( ( len( timeouts ), 4 ) )
-w_list = []
+
 for i in range( len( timeouts ) ):
 	to = timeouts[i]
 	print( "\ttimeout =", to )
@@ -47,10 +45,7 @@ for i in range( len( timeouts ) ):
 		print( "\t\tTrial %d of %d" % ( t + 1, num_trials ) )
 		tic = tm.perf_counter()
 		( w, b, totTime ) = solver( Z_trn[:,:-1], Z_trn[:,-1], to, spacing )
-		w_list.append(w)
 		toc = tm.perf_counter()
-		#print("W : "+str(w[:5]))
-		#print("B : "+str(b))
 		avg_hinge += get_hinge_loss( Z_tst[:,:-1], Z_tst[:,-1], w, b )
 		avg_error += get_misclassification_rate( Z_tst[:,:-1], Z_tst[:,-1], w, b )
 		avg_time_reported += totTime

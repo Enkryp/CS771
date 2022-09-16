@@ -42,20 +42,24 @@ def compute_grads(w,b,n,x,y,C,batch_size):
 	
 	return delw, delb 
 
+
 featuresPrecomputed={}
 
 def features_for_one(X):
 	if (tuple(X) in featuresPrecomputed.keys()): return featuresPrecomputed[tuple(X)]
 
-	X[X==0]=-1
-	features_length = X.shape[0]
+	# X[X==0]=-1
+	X_new = np.copy(X)
+	X_new = 1-2*X_new 
+
+	features_length = X_new.shape[0]
 	for i in range(features_length):
 		if(i==0):
 			continue
 		else:
-			X[features_length-i-1] = X[features_length-i-1]*X[features_length-i]
+			X_new[features_length-i-1] = X_new[features_length-i-1]*X_new[features_length-i]
 	features = []
-
+	
 	for i in range(features_length + 1):
 		for j in range(i,features_length + 1):
 			for k in range(j,features_length + 1):
@@ -63,18 +67,19 @@ def features_for_one(X):
 				if(i == features_length):
 					q1 = 1
 				else:
-					q1 = X[i]
+					q1 = X_new[i]
 				if(j == features_length):
 					q2 = 1
 				else:
-					q2 = X[j]
+					q2 = X_new[j]
 				if(k == features_length):
 					q3 = 1
 				else:
-					q3 = X[k]
+					q3 = X_new[k]
 				features.append(q1*q2*q3)
 	featuresPrecomputed[tuple(X)]=features
-	return featuresPrecomputed[tuple(X)] #np.array(features)	
+	return featuresPrecomputed[tuple(X)] 
+
 ################################
 # Non Editable Region Starting #
 ################################
@@ -88,9 +93,10 @@ def get_renamed_labels( y ):
 	# For example, you may map 1 -> 1 and 0 -> -1 or else you may want to go with 1 -> -1 and 0 -> 1
 	# Use whatever convention you seem fit but use the same mapping throughout your code
 	# If you use one mapping for train and another for test, you will get poor accuracy
-	y_new = np.copy( y )
-	y_new[y_new==1]=-1
-	y_new[y_new==0]= 1
+	
+	y_new = np.copy(y)
+	y_new[y_new==1]=1
+	y_new[y_new==0]= -1
 	return y_new.reshape( ( y_new.size, ) )					# Reshape y_new as a vector
 
 
@@ -109,7 +115,6 @@ def get_features( X ):
 	# features can be 2 dimensional, 10 dimensional, 1000 dimensional, 123456 dimensional etc
 	# Keep in mind that the more dimensions you use, the slower will be your solver too
 	# so use only as many dimensions as are absolutely required to solve the problem
-	# MY COMMENT : X shape is (D cross 1)
 	
 	features = []
 	for i in range(0,X.shape[0]):
@@ -145,8 +150,8 @@ def solver( X, y, timeout, spacing ):
 ################################
 	W = np.random.randn((int)(d*(d-1)*(d+1)/6 + d*(d+1) +d) + 1,1)
 	B = 0.0
-	C = 2
-	batch_size = 128
+	C = 5
+	batch_size = 256
 	step_length_OG = 0.01
 
 	# You may reinitialize W, B to your liking here e.g. set W to its correct dimensionality
