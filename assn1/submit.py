@@ -95,8 +95,8 @@ def get_renamed_labels( y ):
 	# If you use one mapping for train and another for test, you will get poor accuracy
 	
 	y_new = np.copy(y)
-	y_new[y_new==1]=1
-	y_new[y_new==0]= -1
+	y_new[y_new==1]= -1
+	y_new[y_new==0]= 1
 	return y_new.reshape( ( y_new.size, ) )					# Reshape y_new as a vector
 
 
