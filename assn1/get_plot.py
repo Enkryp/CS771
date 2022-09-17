@@ -8,6 +8,7 @@ import random as rnd
 import time as tm
 import random
 import math
+import matplotlib.pyplot as plt
 # SUBMIT YOUR CODE AS A SINGLE PYTHON (.PY) FILE INSIDE A ZIP ARCHIVE
 # THE NAME OF THE PYTHON FILE MUST BE submit.py
 # DO NOT INCLUDE PACKAGES LIKE SKLEARN, SCIPY, KERAS ETC IN YOUR CODE
