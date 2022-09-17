@@ -20,8 +20,8 @@ def get_misclassification_rate( X, y, w, b ):
 	predictions[ scores < 0 ] = -1
 	return 1 - np.average( get_renamed_labels( y ) == predictions )
 
-Z_trn = np.loadtxt( "train.dat" )
-Z_tst = np.loadtxt( "test.dat" )
+Z_trn = np.loadtxt( "secret_train.dat" )
+Z_tst = np.loadtxt( "secret_test.dat" )
 
 # To avoid unlucky outcomes try running the code several times
 num_trials = 5

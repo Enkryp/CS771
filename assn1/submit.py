@@ -1,13 +1,10 @@
-from asyncio import base_tasks
-from functools import WRAPPER_UPDATES
 import numpy as np
 # This is the only scipy method you are allowed to use
 # Use of scipy is not allowed otherwise
 from scipy.linalg import khatri_rao
 import random as rnd
 import time as tm
-import random
-import math
+
 # SUBMIT YOUR CODE AS A SINGLE PYTHON (.PY) FILE INSIDE A ZIP ARCHIVE
 # THE NAME OF THE PYTHON FILE MUST BE submit.py
 # DO NOT INCLUDE PACKAGES LIKE SKLEARN, SCIPY, KERAS ETC IN YOUR CODE
@@ -21,6 +18,8 @@ import math
 
 # You may define any new functions, variables, classes here
 # For example, functions to calculate next coordinate or step length
+import math 
+
 def compute_grads(w,b,n,x,y,C,batch_size):
     # Shapes
 	# x : (batch_size,d)
@@ -93,7 +92,6 @@ def get_renamed_labels( y ):
 	# For example, you may map 1 -> 1 and 0 -> -1 or else you may want to go with 1 -> -1 and 0 -> 1
 	# Use whatever convention you seem fit but use the same mapping throughout your code
 	# If you use one mapping for train and another for test, you will get poor accuracy
-	
 	y_new = np.copy(y)
 	y_new[y_new==1]= -1
 	y_new[y_new==0]= 1
@@ -115,12 +113,11 @@ def get_features( X ):
 	# features can be 2 dimensional, 10 dimensional, 1000 dimensional, 123456 dimensional etc
 	# Keep in mind that the more dimensions you use, the slower will be your solver too
 	# so use only as many dimensions as are absolutely required to solve the problem
-	
 	features = []
 	for i in range(0,X.shape[0]):
 		features.append(features_for_one(X[i]))
-	# print(X[0].shape)
-	return np.array(features)
+	X_new = np.array(features)
+	return X_new
 
 
 ################################
@@ -148,15 +145,14 @@ def solver( X, y, timeout, spacing ):
 ################################
 #  Non Editable Region Ending  #
 ################################
-	W = np.random.randn((int)(d*(d-1)*(d+1)/6 + d*(d+1) +d) + 1,1)
-	B = 0.0
-	C = 5
-	batch_size = 256
-	step_length_OG = 0.01
 
 	# You may reinitialize W, B to your liking here e.g. set W to its correct dimensionality
 	# You may also define new variables here e.g. step_length, mini-batch size etc
-
+	W = np.random.randn((int)(d*(d-1)*(d+1)/6 + d*(d+1) +d) + 1,1)
+	B = 0.0
+	C = 3.5
+	batch_size = 256
+	step_length_OG = 0.01
 ################################
 # Non Editable Region Starting #
 ################################
@@ -169,7 +165,6 @@ def solver( X, y, timeout, spacing ):
 				return ( W.reshape( ( W.size, ) ), B, totTime )			# Reshape W as a vector
 			else:
 				tic = tm.perf_counter()
-
 ################################
 #  Non Editable Region Ending  #
 ################################
@@ -192,14 +187,12 @@ def solver( X, y, timeout, spacing ):
 		# This way, W, B will always store the averages and can be returned at any time
 		# In this scheme, W, B play the role of the "cumulative" variables in the course module optLib (see the cs771 library)
 		# W_run, B_run on the other hand, play the role of the "theta" variable in the course module optLib (see the cs771 library)
-	
-		i = random.randrange(n-batch_size-1)
+		i = rnd.randrange(n-batch_size-1)
 		step_length = step_length_OG/math.sqrt(t)
 		x = get_features(X[i:i+batch_size,:])
 		out = get_renamed_labels(y[i:i+batch_size])
 		delw,delb = compute_grads(W,B,n,x,out,C,batch_size)
 	
 		W = W -step_length*delw
-		B = B - step_length*delb
-		
+		B = B - step_length*delb		
 	return ( W.reshape( ( W.size, ) ), B, totTime )			# This return statement will never be reached
