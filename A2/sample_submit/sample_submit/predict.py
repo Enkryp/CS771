@@ -2,6 +2,7 @@ import numpy as np
 from numpy import random as rand
 from joblib import load
 from params import *
+import tensorflow as tf
 # DO NOT CHANGE THE NAME OF THIS METHOD OR ITS INPUT OUTPUT BEHAVIOR
 
 # PLEASE BE CAREFUL THAT ERROR CLASS NUMBERS START FROM 1 AND NOT 0. THUS, THE FIFTY ERROR CLASSES ARE
@@ -28,8 +29,21 @@ def get_top_k_preds(model_code,model,x,k):
 	Then modify this function
 	Add the model_code to params.py"""
 
-	if(model_code == 1):
+	if(model_code == DT_TREE_CODE):
 		return DT_preds(model,x,k)
+	if(model_code ==  DL_CODE):
+		return DL_preds(model,x,k)
+
+def DL_preds(model,x,k):
+	"""Takes a DL model (tf.keras.models.Sequential). Predicts the top k classes """
+	# Divide x by its norm
+	x = x.toarray()
+	norm = np.linalg.norm(x)
+	x = x/norm
+	preds = model(x)
+	top_k = tf.math.top_k(preds,k)[-1]
+	return np.reshape(top_k,(top_k.shape[1]))	
+
 def DT_preds(model,x,k):
 	"""Takes a DT model (sklearn.tree.DecisionTreeClassfier). Predicts the top k classes """
 	y_pred = model.predict_proba(x)
@@ -45,8 +59,8 @@ def findErrorClass( X, k ):
 	n = X.shape[0]
 	# Load and unpack a dummy model to see an example of how to make predictions
 	# The dummy model simply stores the error classes in decreasing order of their popularity
-	model = load(MODEL_PATH)
+	model = tf.keras.models.load_model(MODEL_PATH)
 	y_pred = []
 	for j in range(n):
-		y_pred.append(get_top_k_preds(DT_TREE_CODE,model, X[j],k))
+		y_pred.append(get_top_k_preds(DL_CODE,model, X[j],k))
 	return np.array(y_pred)

@@ -1,0 +1,7 @@
+DT_TREE_CODE = 1
+DL_CODE = 2
+CLASSES = 50
+dictSize = 225
+MODEL_PATH = "models/dl.zip"
+BATCH_SIZE = 1000
+EPOCHS = 250
