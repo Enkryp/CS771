@@ -25,4 +25,4 @@ Note: We were provided with 2000 sample images for [A3](./assn3/) but to save sp
 
 + [A1:](./assn1/) 66/60 - 7 marks bonus for using reduced dimensionality (`<200`) and 1 mark deducted for `t=0.2s` and `0.01<=e=0.04<1` (full marks for `e<0.01`)
 + [A2:](./assn2/) 87/100 - 6 marks deducted for a size of `~7.5 MB` (full marks for `<128 KB`), 6 marks deducted for an inference time of `~2s` (`ceil( max( 1 - t, 0.4 ) * 10 )`), 1 mark deducted for `mprec@1 = 0.625` (`ceil( max( p, 0.4 ) * 5 )`)
-+ [A3:](./assn3/) 89/100 - 6 marks deducted for a size of `~11.6 KB` (full marks for `<128 KB`), 4 marks deducted for an inference time of `~30s` (full marks for `<5s`), 1 mark deducted for inaccuracy (`floor( c * 40 )`)
++ [A3:](./assn3/) 89/100 - 6 marks deducted for a size of `~11.6 MB` (full marks for `<128 KB`), 4 marks deducted for an inference time of `~30s` (full marks for `<5s`), 1 mark deducted for inaccuracy (`floor( c * 40 )`)
